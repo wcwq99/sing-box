@@ -1,6 +1,6 @@
 id=sing-box-server
-name=sing-box Server
+name=sing-box 服务端
 version=v1.0.2
 versionCode=102
-author=233boy-android
-description=Android server module based on 233boy/sing-box. Core: SagerNet android-* binary. menu: /data/adb/sing-box/menu.sh
+author=wcwq99
+description=GitHub: https://github.com/wcwq99/sing-box Core: SagerNet android-* binary. menu: /data/adb/sing-box/menu.sh
