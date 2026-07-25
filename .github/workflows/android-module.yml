@@ -1,0 +1,59 @@
+name: Android Module
+
+on:
+  workflow_dispatch:
+    inputs:
+      core_ver:
+        description: "sing-box core version (empty = latest), e.g. v1.12.0"
+        required: false
+        default: ""
+      module_ver:
+        description: "module version tag"
+        required: false
+        default: "v1.0.2"
+  push:
+    paths:
+      - "android-module/**"
+      - ".github/workflows/android-module.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: build arm64 + armv7a zips
+        working-directory: android-module
+        env:
+          MODULE_VER: ${{ github.event.inputs.module_ver || 'v1.0.2' }}
+          MODULE_CODE: "102"
+          CORE_VER: ${{ github.event.inputs.core_ver }}
+        run: |
+          chmod +x build-release.sh
+          ./build-release.sh
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sing-box-android-modules
+          path: |
+            dist/sing-box-android-arm64.zip
+            dist/sing-box-android-armv7a.zip
+            dist/build-manifest.txt
+
+      - name: release (workflow_dispatch only)
+        if: github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-${{ github.event.inputs.module_ver || 'v1.0.2' }}
+          name: Android Module ${{ github.event.inputs.module_ver || 'v1.0.2' }}
+          body_path: dist/build-manifest.txt
+          files: |
+            dist/sing-box-android-arm64.zip
+            dist/sing-box-android-armv7a.zip
+            dist/build-manifest.txt
+          generate_release_notes: true

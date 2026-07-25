@@ -1,0 +1,11 @@
+# build artifacts (do not commit binaries / zips)
+dist/
+*.zip
+android-module/.build/
+android-module/sb/bin/
+android-module/sb/conf/
+android-module/sb/log/
+android-module/sb/tmp/
+**/菜单.sh
+.DS_Store
+Thumbs.db

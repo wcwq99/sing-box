@@ -2,6 +2,28 @@
 
 最好用的 sing-box 一键安装脚本 & 管理脚本
 
+> **原项目：** [233boy/sing-box](https://github.com/233boy/sing-box) · 文档：https://233boy.com/sing-box/sing-box-script/
+
+## Android 服务端模块
+
+本仓库额外提供 **Android Magisk 服务端模块**（精简移植，非原版 Linux 脚本）：
+
+- 目录：[`android-module/`](./android-module/)
+- 说明与构建：见 [`android-module/README.md`](./android-module/README.md)
+- Core 来自 [SagerNet/sing-box](https://github.com/SagerNet/sing-box) 官方 `android-arm64` / `android-arm` 发布包
+
+```bash
+cd android-module
+./build-release.sh          # 或 Windows: .\build-release.ps1
+# 产物: dist/sing-box-android-arm64.zip / dist/sing-box-android-armv7a.zip
+```
+
+手机安装后：
+
+```bash
+sh /data/adb/sing-box/menu.sh
+```
+
 # 特点
 
 - 快速安装

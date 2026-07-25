@@ -1,0 +1,7 @@
+.build/
+*.zip
+sb/bin/
+sb/conf/
+sb/log/
+sb/tmp/
+**/菜单.sh
