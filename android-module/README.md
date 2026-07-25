@@ -149,6 +149,15 @@ sh /data/adb/sing-box/restart.sh
 
 开机自启由模块 `service.sh` 处理（检测到 binary 才启动）。
 
+## 卸载
+
+Magisk 卸载模块时会：
+
+1. 停止 sing-box 进程  
+2. **完整删除** `/data/adb/sing-box`（脚本 / binary / 配置 / 日志）
+
+无需再手动 `rm -rf`。
+
 ## Core 选择注意
 
 - 正式包内 core = GitHub 官方 **`android-arm64`**（64 位包）/ **`android-arm`**（32 位包），打包时下载并打进 zip

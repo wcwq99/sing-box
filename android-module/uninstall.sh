@@ -1,12 +1,25 @@
 #!/system/bin/sh
-# Magisk module uninstall: keep conf by default; remove runtime only if empty marker set
-# Data at /data/adb/sing-box is intentionally kept so reinstall restores configs.
-# To wipe fully after uninstall:
-#   rm -rf /data/adb/sing-box
+# Magisk module uninstall: stop process and remove runtime data fully
 
-# stop process if running
-if [ -f /data/adb/sing-box/stop.sh ]; then
-  /system/bin/sh /data/adb/sing-box/stop.sh >/dev/null 2>&1
-elif [ -f /data/adb/sing-box/sb.sh ]; then
-  /system/bin/sh /data/adb/sing-box/sb.sh stop >/dev/null 2>&1
+SB_HOME=/data/adb/sing-box
+
+# stop process first
+if [ -f "$SB_HOME/stop.sh" ]; then
+  /system/bin/sh "$SB_HOME/stop.sh" >/dev/null 2>&1
+elif [ -f "$SB_HOME/sb.sh" ]; then
+  /system/bin/sh "$SB_HOME/sb.sh" stop >/dev/null 2>&1
 fi
+
+# kill leftover by binary path
+if [ -x "$SB_HOME/bin/sing-box" ]; then
+  for d in /proc/[0-9]*; do
+    [ -r "$d/cmdline" ] || continue
+    if tr '\0' ' ' <"$d/cmdline" 2>/dev/null | grep -q "$SB_HOME/bin/sing-box"; then
+      kill "${d##*/}" 2>/dev/null
+      kill -9 "${d##*/}" 2>/dev/null
+    fi
+  done
+fi
+
+# remove fixed home completely (scripts/binary/conf/log)
+rm -rf "$SB_HOME"
