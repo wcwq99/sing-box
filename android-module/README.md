@@ -30,6 +30,18 @@
 - `dist/sing-box-android-arm64.zip` ← **64 位**，GitHub `android-arm64`
 - `dist/sing-box-android-armv7a.zip` ← **32 位**，GitHub `android-arm`
 
+### GitHub Actions 自动打包
+
+推送 `android-module/**` 到 `main` 后，workflow **Android Module** 会：
+
+1. 下载官方 `android-*` core 并打包两个 zip  
+2. 上传 Actions Artifact（临时）  
+3. **自动创建 GitHub Release**，页面可直接下载 zip  
+
+- Actions：仓库 → Actions → `Android Module`  
+- 下载：仓库 → [Releases](https://github.com/wcwq99/sing-box/releases)（标签形如 `android-module-v1.0.2-rN`）  
+- 也可手动：Actions → Android Module → Run workflow
+
 ```bash
 # Linux / macOS / Git Bash
 cd android-module
@@ -41,7 +53,7 @@ cd android-module
 .\build-release.ps1 -CoreVer v1.12.0
 ```
 
-> 源码树里的 `pack.ps1` / `pack.sh` 只打**无 core** 脚本包（调试用）。正式发布请用 `build-release.*`。
+> 源码树里的 `pack.ps1` / `pack.sh` 只打**无 core** 脚本包（调试用）。正式发布请用 `build-release.*` 或 GitHub Actions。
 
 ## 设计取舍
 

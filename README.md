@@ -18,6 +18,10 @@ cd android-module
 # 产物: dist/sing-box-android-arm64.zip / dist/sing-box-android-armv7a.zip
 ```
 
+推送到 `main` 后 GitHub Actions 会自动打 zip 并发布到 **Releases**（可直接下载）：
+
+https://github.com/wcwq99/sing-box/releases
+
 手机安装后：
 
 ```bash

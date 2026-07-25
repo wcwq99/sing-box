@@ -8,10 +8,11 @@ on:
         required: false
         default: ""
       module_ver:
-        description: "module version tag"
+        description: "module version tag (used for release name)"
         required: false
         default: "v1.0.2"
   push:
+    branches: [main]
     paths:
       - "android-module/**"
       - ".github/workflows/android-module.yml"
@@ -26,12 +27,40 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
+      - name: resolve versions
+        id: ver
+        env:
+          INPUT_MODULE_VER: ${{ github.event.inputs.module_ver }}
+          INPUT_CORE_VER: ${{ github.event.inputs.core_ver }}
+        run: |
+          set -euo pipefail
+          MODULE_VER="${INPUT_MODULE_VER:-}"
+          if [ -z "$MODULE_VER" ]; then
+            MODULE_VER=$(grep -E '^version=' android-module/module.prop | head -1 | cut -d= -f2)
+          fi
+          MODULE_VER="${MODULE_VER:-v1.0.2}"
+          MODULE_CODE=$(grep -E '^versionCode=' android-module/module.prop | head -1 | cut -d= -f2)
+          MODULE_CODE="${MODULE_CODE:-102}"
+          CORE_VER="${INPUT_CORE_VER:-}"
+          # unique release tag: avoid clobbering unrelated tags; allow re-run with run_number
+          TAG="android-module-${MODULE_VER}"
+          if [ "${{ github.event_name }}" = "push" ]; then
+            TAG="android-module-${MODULE_VER}-r${{ github.run_number }}"
+          fi
+          {
+            echo "module_ver=$MODULE_VER"
+            echo "module_code=$MODULE_CODE"
+            echo "core_ver=$CORE_VER"
+            echo "tag=$TAG"
+          } >> "$GITHUB_OUTPUT"
+          echo "module=$MODULE_VER code=$MODULE_CODE tag=$TAG core=${CORE_VER:-latest}"
+
       - name: build arm64 + armv7a zips
         working-directory: android-module
         env:
-          MODULE_VER: ${{ github.event.inputs.module_ver || 'v1.0.2' }}
-          MODULE_CODE: "102"
-          CORE_VER: ${{ github.event.inputs.core_ver }}
+          MODULE_VER: ${{ steps.ver.outputs.module_ver }}
+          MODULE_CODE: ${{ steps.ver.outputs.module_code }}
+          CORE_VER: ${{ steps.ver.outputs.core_ver }}
         run: |
           chmod +x build-release.sh
           ./build-release.sh
@@ -44,16 +73,20 @@ jobs:
             dist/sing-box-android-arm64.zip
             dist/sing-box-android-armv7a.zip
             dist/build-manifest.txt
+          if-no-files-found: error
+          retention-days: 30
 
-      - name: release (workflow_dispatch only)
-        if: github.event_name == 'workflow_dispatch'
+      # Always publish downloadable zips on Releases (not only manual dispatch)
+      - name: create GitHub Release with zips
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: android-${{ github.event.inputs.module_ver || 'v1.0.2' }}
-          name: Android Module ${{ github.event.inputs.module_ver || 'v1.0.2' }}
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: Android Module ${{ steps.ver.outputs.module_ver }}
           body_path: dist/build-manifest.txt
           files: |
             dist/sing-box-android-arm64.zip
             dist/sing-box-android-armv7a.zip
             dist/build-manifest.txt
           generate_release_notes: true
+          make_latest: true
+          fail_on_unmatched_files: true
