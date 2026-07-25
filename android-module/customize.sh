@@ -5,9 +5,9 @@
 
 SKIPUNZIP=0
 
-ui_print "- install sing-box Android server module"
-ui_print "- module id: sing-box-server (arm64/armv7a 共用, 只装一个)"
-ui_print "- fixed path: /data/adb/sing-box"
+ui_print "- 正在安装 sing-box Android 服务端模块"
+ui_print "- 模块 id: sing-box-server (arm64/armv7a 共用, 只装一个)"
+ui_print "- 固定目录: /data/adb/sing-box"
 
 mkdir -p /data/adb/sing-box/bin \
   /data/adb/sing-box/conf \
@@ -28,7 +28,7 @@ for d in \
   /data/adb/modules_update/sing-box-server-armv7a
 do
   if [ -d "$d" ]; then
-    ui_print "- remove stale module dir: $d"
+    ui_print "- 清理旧模块目录: $d"
     rm -rf "$d"
   fi
 done
@@ -70,14 +70,14 @@ fi
 if [ -n "$CORE_SRC" ]; then
   cp -f "$CORE_SRC" /data/adb/sing-box/bin/sing-box
   chmod 755 /data/adb/sing-box/bin/sing-box
-  ui_print "- core installed: /data/adb/sing-box/bin/sing-box"
+  ui_print "- 已安装 core: /data/adb/sing-box/bin/sing-box"
   if [ -f "$MODPATH/sb/core.version" ]; then
     cp -f "$MODPATH/sb/core.version" /data/adb/sing-box/core.version
     ui_print "- $(head -n 3 /data/adb/sing-box/core.version | tr '\n' ' ')"
   fi
 else
-  ui_print "- WARN: zip has no bundled core"
-  ui_print "- put binary manually: /data/adb/sing-box/bin/sing-box"
+  ui_print "- [WARN] zip 未内置 core"
+  ui_print "- 请手动放置: /data/adb/sing-box/bin/sing-box"
 fi
 
 if [ ! -f /data/adb/sing-box/config.json ]; then
@@ -110,6 +110,6 @@ if [ ! -f /data/adb/sing-box/config.json ]; then
 EOF
 fi
 
-ui_print "- done"
-ui_print "- menu:  sh /data/adb/sing-box/menu.sh"
-ui_print "- start: sh /data/adb/sing-box/start.sh"
+ui_print "- 安装完成"
+ui_print "- 菜单: sh /data/adb/sing-box/menu.sh"
+ui_print "- 启动: sh /data/adb/sing-box/start.sh"

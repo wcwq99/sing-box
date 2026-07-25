@@ -38,16 +38,16 @@ _pause() {
 _status_line() {
   if [ -x "$SB_HOME/bin/sing-box" ]; then
     ver=$("$SB_HOME/bin/sing-box" version 2>/dev/null | head -1)
-    [ -z "$ver" ] && ver="sing-box installed"
+    [ -z "$ver" ] && ver="已安装"
   else
-    ver="core missing"
+    ver="core 缺失"
   fi
   pid=""
   [ -f "$SB_HOME/tmp/sing-box.pid" ] && pid=$(cat "$SB_HOME/tmp/sing-box.pid" 2>/dev/null)
   if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
-    st="running (pid=$pid)"
+    st="运行中 (pid=$pid)"
   else
-    st="stopped"
+    st="已停止"
   fi
   n=$(ls "$SB_HOME/conf"/*.json 2>/dev/null | wc -l | tr -d ' ')
   [ -z "$n" ] && n=0
@@ -220,7 +220,7 @@ while :; do
     6) _run test; _pause ;;
     7) _run list; _pause ;;
     8) _menu_help; _pause ;;
-    0|q|Q|"") _echo "bye"; exit 0 ;;
+    0|q|Q|"") _echo "再见"; exit 0 ;;
     *) _err "无效选择: $choice"; _pause ;;
   esac
 done

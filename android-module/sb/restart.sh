@@ -24,12 +24,12 @@ START="$HERE/start.sh"
 if [ -f "$STOP" ]; then
   /system/bin/sh "$STOP"
 else
-  _echo "[WARN] stop.sh not found"
+  _echo "[WARN] 未找到 stop.sh"
 fi
 sleep 1
 if [ -f "$START" ]; then
   /system/bin/sh "$START"
 else
-  _echo "[ERR] start.sh not found" >&2
+  _echo "[ERR] 未找到 start.sh" >&2
   exit 1
 fi

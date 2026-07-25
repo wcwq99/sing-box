@@ -27,12 +27,12 @@ if [ -f "$HERE/sb.sh" ]; then
   exec /system/bin/sh "$HERE/sb.sh" start
 fi
 
-[ -x "$SB_BIN" ] || _err "missing binary: $SB_BIN"
+[ -x "$SB_BIN" ] || _err "未找到可执行文件: $SB_BIN"
 
 if [ -f "$PID_FILE" ]; then
   old=$(cat "$PID_FILE" 2>/dev/null)
   if [ -n "$old" ] && kill -0 "$old" 2>/dev/null; then
-    _warn "already running (pid=$old)"
+    _warn "已在运行 (pid=$old)"
     exit 0
   fi
 fi
@@ -69,7 +69,7 @@ echo $! >"$PID_FILE"
 sleep 1
 pid=$(cat "$PID_FILE" 2>/dev/null)
 if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
-  _ok "started (pid=$pid)"
+  _ok "已启动 (pid=$pid)"
 else
-  _err "start failed, see $SB_LOG/stdout.log"
+  _err "启动失败，详见 $SB_LOG/stdout.log"
 fi

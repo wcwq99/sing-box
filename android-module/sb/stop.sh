@@ -42,7 +42,7 @@ for d in /proc/[0-9]*; do
 done
 
 if [ "$stopped" = "1" ]; then
-  _ok "stopped"
+  _ok "已停止"
 else
-  _warn "not running"
+  _warn "当前未运行"
 fi

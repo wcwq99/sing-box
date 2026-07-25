@@ -276,37 +276,37 @@ cmd_status() {
   _ensure_dirs
   if _is_running; then
     pid=$(_find_bin_pid)
-    _ok "sing-box running (pid=$pid)"
+    _ok "sing-box 运行中 (pid=$pid)"
     if [ -x "$SB_BIN" ]; then
       ver=$("$SB_BIN" version 2>/dev/null | head -1)
       _info "core: $ver"
     fi
   else
-    _warn "sing-box stopped"
+    _warn "sing-box 已停止"
   fi
   n=$(ls "$SB_CONF"/*.json 2>/dev/null | wc -l | tr -d ' ')
-  _info "configs: ${n:-0}  dir: $SB_HOME"
+  _info "配置数: ${n:-0}  目录: $SB_HOME"
 }
 
 cmd_start() {
   _check_bin
   _ensure_base_config
   if _is_running; then
-    _warn "already running"
+    _warn "已在运行"
     return 0
   fi
   # validate
   if ! "$SB_BIN" check -c "$SB_CFG" -C "$SB_CONF" >/dev/null 2>&1; then
-    _warn "config check failed, try run anyway; see $SB_LOG/error.log"
+    _warn "配置检查失败，仍尝试启动；详见 $SB_LOG/error.log"
     "$SB_BIN" check -c "$SB_CFG" -C "$SB_CONF" >"$SB_LOG/error.log" 2>&1 || true
   fi
   "$SB_BIN" run -c "$SB_CFG" -C "$SB_CONF" >"$SB_LOG/stdout.log" 2>&1 &
   echo $! >"$PID_FILE"
   sleep 1
   if _is_running; then
-    _ok "started (pid=$(cat "$PID_FILE"))"
+    _ok "已启动 (pid=$(cat "$PID_FILE"))"
   else
-    _err "start failed, see $SB_LOG/stdout.log"
+    _err "启动失败，详见 $SB_LOG/stdout.log"
   fi
 }
 
@@ -317,7 +317,7 @@ cmd_stop() {
     sleep 1
     kill -9 "$pid" 2>/dev/null
     rm -f "$PID_FILE"
-    _ok "stopped"
+    _ok "已停止"
     return
   fi
   # kill by path
@@ -328,7 +328,7 @@ cmd_stop() {
     fi
   done
   rm -f "$PID_FILE"
-  _ok "stopped"
+  _ok "已停止"
 }
 
 cmd_restart() {
@@ -481,13 +481,13 @@ _ensure_tls() {
   _check_bin
   tmp="$SB_TMP/tls.tmp"
   "$SB_BIN" generate tls-keypair tls -m 456 >"$tmp" 2>/dev/null || {
-    _err "generate tls keypair failed"
+    _err "生成 TLS 密钥对失败"
   }
   # extract without awk (Android often has no awk)
   sed -n '/BEGIN PRIVATE KEY/,/END PRIVATE KEY/p' "$tmp" >"$key"
   sed -n '/BEGIN CERTIFICATE/,/END CERTIFICATE/p' "$tmp" >"$cer"
   rm -f "$tmp"
-  [ -s "$cer" ] && [ -s "$key" ] || _err "tls extract failed"
+  [ -s "$cer" ] && [ -s "$key" ] || _err "提取 TLS 证书失败"
 }
 
 _write_hysteria2() {
@@ -533,7 +533,7 @@ _b64() {
     openssl base64 -A 2>/dev/null
     return
   fi
-  _err "need base64"
+  _err "需要 base64 命令"
 }
 
 _is_auto_or_empty() {
@@ -565,7 +565,7 @@ cmd_add() {
       [ "$path" = "auto" ] && path=""
       name="VMess-WS-$port"
       _write_vmess_ws "$name" "$port" "$uuid" "$path" "$host" >/dev/null
-      _ok "added $name"
+      _ok "已添加 $name"
       cmd_info "$name.json"
       if [ -x "$SB_BIN" ]; then cmd_restart; fi
       ;;
@@ -576,7 +576,7 @@ cmd_add() {
       _is_auto_or_empty "$method" && method="aes-128-gcm"
       name="Shadowsocks-$port"
       _write_shadowsocks "$name" "$port" "$method" "$pass" >/dev/null
-      _ok "added $name"
+      _ok "已添加 $name"
       cmd_info "$name.json"
       if [ -x "$SB_BIN" ]; then cmd_restart; fi
       ;;
@@ -587,7 +587,7 @@ cmd_add() {
       _is_auto_or_empty "$pass" && pass=$(_uuid)
       name="Socks-$port"
       _write_socks "$name" "$port" "$user" "$pass" >/dev/null
-      _ok "added $name"
+      _ok "已添加 $name"
       cmd_info "$name.json"
       if [ -x "$SB_BIN" ]; then cmd_restart; fi
       ;;
@@ -598,7 +598,7 @@ cmd_add() {
       _is_auto_or_empty "$pass" && pass=$(_uuid)
       name="HTTP-$port"
       _write_http "$name" "$port" "$user" "$pass" >/dev/null
-      _ok "added $name"
+      _ok "已添加 $name"
       cmd_info "$name.json"
       if [ -x "$SB_BIN" ]; then cmd_restart; fi
       ;;
@@ -620,7 +620,7 @@ cmd_add() {
       name="VLESS-REALITY-$port"
       _write_vless_reality "$name" "$port" "$uuid" "$sni" "$priv" "$pub" >/dev/null
       printf '%s\n' "$pub" >"$SB_TMP/${name}.pbk"
-      _ok "added $name"
+      _ok "已添加 $name"
       cmd_info "$name.json"
       cmd_restart
       ;;
@@ -630,7 +630,7 @@ cmd_add() {
       _is_auto_or_empty "$pass" && pass=$(_uuid)
       name="Hysteria2-$port"
       _write_hysteria2 "$name" "$port" "$pass" >/dev/null
-      _ok "added $name (self-signed TLS, client allowInsecure=1)"
+      _ok "已添加 $name (自签 TLS, 客户端需 allowInsecure=1)"
       cmd_info "$name.json"
       cmd_restart
       ;;
@@ -691,7 +691,7 @@ cmd_info() {
   _ensure_dirs
   conf=$(_pick_conf "$1")
   f="$SB_CONF/$conf"
-  [ -f "$f" ] || _err "no file $f"
+  [ -f "$f" ] || _err "文件不存在: $f"
   ip=$(_get_ip)
   type=$(_json_get "$f" type)
   [ -z "$type" ] && type=$(grep -o '"type"[[:space:]]*:[[:space:]]*"[^"]*"' "$f" | head -1 | sed 's/.*"\([^"]*\)"$/\1/')
@@ -793,7 +793,7 @@ cmd_del() {
   conf=$(_pick_conf "$1")
   rm -f "$SB_CONF/$conf"
   rm -f "$SB_TMP/${conf%.json}.pbk"
-  _ok "deleted $conf"
+  _ok "已删除 $conf"
   if _is_running; then
     cmd_restart
   fi
@@ -808,7 +808,7 @@ cmd_list() {
     found=1
   done
   if [ "$found" = "0" ]; then
-    _warn "empty"
+    _warn "暂无配置"
     return 1
   fi
 }
@@ -819,15 +819,15 @@ cmd_set_ip() {
     unset SB_IP
     rm -f "$SB_HOME/ip.txt"
     ip=$(_get_ip)
-    _ok "auto IP: $ip"
+    _ok "自动 IP: $ip"
     return
   fi
   if ! _is_ipv4 "$ip"; then
-    _err "invalid IPv4: $ip"
+    _err "无效 IPv4: $ip"
   fi
   printf '%s\n' "$ip" >"$SB_HOME/ip.txt"
-  _ok "saved share IP: $ip  (file: $SB_HOME/ip.txt)"
-  _info "only affects info/url display, not listen address"
+  _ok "已保存分享 IP: $ip  (文件: $SB_HOME/ip.txt)"
+  _info "仅影响 info/url 显示，不改变监听地址"
 }
 
 # rewrite listen to 0.0.0.0 for old confs that used ::
@@ -839,13 +839,13 @@ cmd_fix_listen() {
     if grep -q '"listen"[[:space:]]*:[[:space:]]*"::"' "$f" 2>/dev/null; then
       sed 's/"listen"[[:space:]]*:[[:space:]]*"::"/"listen": "0.0.0.0"/g' "$f" >"$f.tmp" && mv -f "$f.tmp" "$f"
       n=$((n + 1))
-      _ok "fixed listen: $(basename "$f")"
+      _ok "已修复 listen: $(basename "$f")"
     fi
   done
   if [ "$n" = "0" ]; then
-    _info "no conf needs listen fix"
+    _info "没有需要修复 listen 的配置"
   else
-    _info "fixed $n file(s), restarting..."
+    _info "已修复 $n 个文件，正在重启..."
     if [ -x "$SB_BIN" ]; then cmd_restart; fi
   fi
 }
@@ -860,34 +860,34 @@ cmd_log() {
       cat "$f"
     fi
   else
-    _warn "no log yet"
+    _warn "暂无日志"
   fi
 }
 
 cmd_test() {
   _check_bin
   _ensure_base_config
-  _info "check config..."
+  _info "正在检查配置..."
   "$SB_BIN" check -c "$SB_CFG" -C "$SB_CONF"
 }
 
 cmd_gen_tls() {
   _check_bin
   _ensure_tls
-  _ok "tls: $SB_HOME/bin/tls.cer / tls.key"
+  _ok "TLS: $SB_HOME/bin/tls.cer / tls.key"
 }
 
 cmd_help() {
   cat <<EOF
-sing-box Android server $SCRIPT_VER
-Home: $SB_HOME
+sing-box Android 服务端 $SCRIPT_VER
+目录: $SB_HOME
 Core: $SB_BIN
       (正式 zip 已内置 GitHub 官方 binary；安装时拷贝到此路径)
 
 推荐: 交互菜单
   sh $SB_HOME/menu.sh
 
-用法: sh $SB_HOME/sb.sh <command> [args]
+用法: sh $SB_HOME/sb.sh <命令> [参数]
   (不提供系统 PATH 命令 sb)
 
 管理:
